@@ -41,7 +41,9 @@ function startQuiz() {
 
 function displayQuestion() {
   const question = quizQuestions[currentQuestionIndex];
-  document.getElementById("progress").textContent = `Question ${currentQuestionIndex + 1} sur 20`;
+  document.getElementById("progress").textContent = `Question ${
+    currentQuestionIndex + 1
+  } sur 20`;
   document.getElementById("question").textContent = question.question;
 
   const optionsDiv = document.getElementById("options");
@@ -67,8 +69,12 @@ function displayQuestion() {
 
   document.getElementById("prev").disabled = currentQuestionIndex === 0;
   document.getElementById("next").disabled = currentQuestionIndex === 19;
-  document.getElementById("submit").classList.toggle("hidden", currentQuestionIndex !== 19);
-  document.getElementById("next").classList.toggle("hidden", currentQuestionIndex === 19);
+  document
+    .getElementById("submit")
+    .classList.toggle("hidden", currentQuestionIndex !== 19);
+  document
+    .getElementById("next")
+    .classList.toggle("hidden", currentQuestionIndex === 19);
 
   updateProgressBar();
 }
@@ -76,6 +82,11 @@ function displayQuestion() {
 function selectOption(index) {
   userAnswers[currentQuestionIndex] = index;
   displayQuestion();
+
+  if (useTimer) {
+    stopTimer();
+    startTimer();
+  }
 }
 
 function prevQuestion() {
@@ -101,6 +112,8 @@ function nextQuestion() {
 }
 
 function startTimer() {
+  stopTimer(); // Arrête timer existant s’il y en a
+
   let timeLeft = 30; // 30s par question
   const timerDisplay = document.getElementById("timerDisplay");
   timerDisplay.textContent = `Temps restant : ${timeLeft}s`;
@@ -139,16 +152,22 @@ function submitQuiz() {
   quizQuestions.forEach((q, index) => {
     if (userAnswers[index] === q.bonneReponse) {
       score++;
-      corrections += `<div class="correct">Question ${index + 1}: Correct</div>`;
+      corrections += `<div class="correct">Question ${
+        index + 1
+      }: Correct</div>`;
     } else {
-      corrections += `<div class="wrong">Question ${index + 1}: Incorrect. Bonne réponse: ${
+      corrections += `<div class="wrong">Question ${
+        index + 1
+      }: Incorrect. Bonne réponse: ${
         q.options[q.bonneReponse]
       }<br>Explication: ${q.explication}</div>`;
     }
   });
 
   const percentage = (score / 20) * 100;
-  document.getElementById("score").textContent = `Score : ${score}/20 (${percentage.toFixed(2)}%)`;
+  document.getElementById(
+    "score"
+  ).textContent = `Score : ${score}/20 (${percentage.toFixed(2)}%)`;
   document.getElementById("corrections").innerHTML = corrections;
   showPage("results");
 
@@ -168,7 +187,8 @@ function submitQuiz() {
   updateUser(currentUser);
 
   // Historique
-  const history = JSON.parse(localStorage.getItem("history_" + currentUser.id)) || [];
+  const history =
+    JSON.parse(localStorage.getItem("history_" + currentUser.id)) || [];
   history.push({
     date: new Date().toISOString(),
     language: currentLanguage,
@@ -186,7 +206,9 @@ function submitQuiz() {
 
 function revise() {
   // Afficher les questions échouées
-  const wrongQuestions = quizQuestions.filter((q, index) => userAnswers[index] !== q.bonneReponse);
+  const wrongQuestions = quizQuestions.filter(
+    (q, index) => userAnswers[index] !== q.bonneReponse
+  );
   if (wrongQuestions.length === 0) {
     showAlert("Aucune question à réviser, vous avez tout réussi !", "info");
     return;
@@ -202,7 +224,8 @@ function revise() {
 }
 
 function updateProgressBar() {
-  const progressPercent = ((currentQuestionIndex + 1) / quizQuestions.length) * 100;
+  const progressPercent =
+    ((currentQuestionIndex + 1) / quizQuestions.length) * 100;
   const progressBar = document.getElementById("progressBar");
   progressBar.style.width = `${progressPercent}%`;
   progressBar.setAttribute("aria-valuenow", progressPercent.toFixed(0));
@@ -230,7 +253,7 @@ function launchConfetti() {
     confetti(
       Object.assign({}, defaults, {
         particleCount: Math.floor(particleCount),
-        origin: { x: Math.random(), y: Math.random() * 0.2 }
+        origin: { x: Math.random(), y: Math.random() * 0.2 },
       })
     );
   }, 250);

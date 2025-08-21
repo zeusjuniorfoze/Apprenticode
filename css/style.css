@@ -122,17 +122,50 @@ button:focus {
     animation: bounce 0.4s;
 }
 
-/* ===== Corrections ===== */
-#corrections .wrong {
-    color: red;
-    font-weight: bold;
-    animation: shake 0.5s;
+/* Résultats QCM */
+#results {
+    animation: fadeIn 0.6s ease-in-out;
 }
 
-#corrections .correct {
-    color: green;
-    font-weight: bold;
-    animation: bounce 0.5s;
+.correction-card {
+    border-left: 5px solid #ccc;
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.correction-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+}
+
+.correction-card.correct {
+    border-left-color: #28a745;
+    background: #f6fff9;
+}
+
+.correction-card.wrong {
+    border-left-color: #dc3545;
+    background: #fff6f6;
+}
+
+.correction-card h5 {
+    color: #333;
+}
+
+.explication {
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* ===== Alerts ===== */
@@ -142,8 +175,7 @@ button:focus {
     right: 20px;
     padding: 10px 15px;
     border-radius: 5px;
-    background-color: #007bff;
-    color: white;
+    color: black;
     opacity: 0;
     transform: translateY(-20px);
     transition: opacity 0.3s, transform 0.3s;

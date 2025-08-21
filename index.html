@@ -31,7 +31,7 @@
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link" href="#" onclick="showPage('home')">Accueil</a></li>
                     <li class="nav-item"><a class="nav-link" href="#" onclick="showPage('dashboard')">Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#" onclick="showPage('profile')">Profil</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#" onclick="showProfile()">Profil</a></li>
                     <li class="nav-item"><a class="nav-link text-danger" href="#" onclick="logout()"
                             aria-label="Déconnexion"><i class="bx bx-log-out"></i> Déconnexion</a></li>
                     <li class="nav-item ms-2">
@@ -150,7 +150,7 @@
                 <button class="btn btn-primary me-2" onclick="startQuiz()" aria-label="Commencer le QCM">
                     <i class="bx bx-play-circle"></i> Commencer le QCM
                 </button>
-                <button class="btn btn-secondary" onclick="showPage('profile')" aria-label="Voir profil">
+                <button class="btn btn-secondary" onclick="showProfile()" aria-label="Voir profil">
                     <i class="bx bx-user"></i> Profil
                 </button>
             </div>
@@ -164,7 +164,7 @@
                     style="width: 0%" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
             </div>
             <div class="card shadow p-4 mb-3">
-                <div id="progress" class="mb-2 fw-bold" aria-live="polite">Question 1 sur 20</div>
+                <div id="progress" class="mb-2 fw-bold" aria-live="polite">Question 1 sur 10</div>
                 <div id="timerDisplay" class="mb-2 text-danger hidden" aria-live="polite"></div>
                 <div id="question" class="mb-3"></div>
                 <div id="options" class="mb-3" role="list"></div>

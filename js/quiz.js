@@ -23,13 +23,13 @@ function startQuiz() {
   quizQuestions = questions.filter(
     (q) => q.langage === currentLanguage && q.niveau === currentLevel
   );
-  if (quizQuestions.length < 20) {
+  if (quizQuestions.length < 10) {
     showAlert("Pas assez de questions pour ce langage et niveau", "danger");
     return;
   }
 
-  quizQuestions = shuffle(quizQuestions).slice(0, 20);
-  userAnswers = new Array(20).fill(null);
+  quizQuestions = shuffle(quizQuestions).slice(0, 10);
+  userAnswers = new Array(10).fill(null);
   currentQuestionIndex = 0;
 
   showPage("quiz");
@@ -41,9 +41,11 @@ function startQuiz() {
 
 function displayQuestion() {
   const question = quizQuestions[currentQuestionIndex];
+
   document.getElementById("progress").textContent = `Question ${
     currentQuestionIndex + 1
-  } sur 20`;
+  } sur ${quizQuestions.length}`;
+
   document.getElementById("question").textContent = question.question;
 
   const optionsDiv = document.getElementById("options");
@@ -68,13 +70,21 @@ function displayQuestion() {
   });
 
   document.getElementById("prev").disabled = currentQuestionIndex === 0;
-  document.getElementById("next").disabled = currentQuestionIndex === 19;
+  document.getElementById("next").disabled =
+    currentQuestionIndex === quizQuestions.length - 1;
+
   document
     .getElementById("submit")
-    .classList.toggle("hidden", currentQuestionIndex !== 19);
+    .classList.toggle(
+      "hidden",
+      currentQuestionIndex !== quizQuestions.length - 1
+    );
   document
     .getElementById("next")
-    .classList.toggle("hidden", currentQuestionIndex === 19);
+    .classList.toggle(
+      "hidden",
+      currentQuestionIndex === quizQuestions.length - 1
+    );
 
   updateProgressBar();
 }
@@ -82,16 +92,11 @@ function displayQuestion() {
 function selectOption(index) {
   userAnswers[currentQuestionIndex] = index;
   displayQuestion();
-
-  if (useTimer) {
-    stopTimer();
-    startTimer();
-  }
 }
 
-function prevQuestion() {
-  if (currentQuestionIndex > 0) {
-    currentQuestionIndex--;
+function nextQuestion() {
+  if (currentQuestionIndex < quizQuestions.length - 1) {
+    currentQuestionIndex++;
     displayQuestion();
     if (useTimer) {
       stopTimer();
@@ -100,9 +105,9 @@ function prevQuestion() {
   }
 }
 
-function nextQuestion() {
-  if (currentQuestionIndex < 19) {
-    currentQuestionIndex++;
+function prevQuestion() {
+  if (currentQuestionIndex > 0) {
+    currentQuestionIndex--;
     displayQuestion();
     if (useTimer) {
       stopTimer();
@@ -131,7 +136,7 @@ function startTimer() {
     if (timeLeft <= 0) {
       clearInterval(timerInterval);
       nextQuestion();
-      if (currentQuestionIndex < 20) {
+      if (currentQuestionIndex < 10) {
         startTimer();
       }
     }
@@ -149,26 +154,66 @@ function submitQuiz() {
   stopTimer();
   let score = 0;
   let corrections = "";
+
   quizQuestions.forEach((q, index) => {
-    if (userAnswers[index] === q.bonneReponse) {
+    const userAnswer = userAnswers[index];
+    const isCorrect = userAnswer === q.bonneReponse;
+
+    if (isCorrect) {
       score++;
-      corrections += `<div class="correct">Question ${
-        index + 1
-      }: Correct</div>`;
+      corrections += `
+        <div class="card border-success shadow-sm p-3 mb-3">
+          <h5 class="text-success">✅ ${q.question}</h5>
+          <p class="mb-0"><strong>Votre réponse :</strong> ${q.options[userAnswer]}</p>
+        </div>`;
     } else {
-      corrections += `<div class="wrong">Question ${
-        index + 1
-      }: Incorrect. Bonne réponse: ${
-        q.options[q.bonneReponse]
-      }<br>Explication: ${q.explication}</div>`;
+      corrections += `
+        <div class="card border-danger shadow-sm p-3 mb-3">
+          <h5 class="text-danger">❌ ${q.question}</h5>
+          <p><strong>Votre réponse :</strong> ${
+            userAnswer !== undefined ? q.options[userAnswer] : "Non répondu"
+          }</p>
+          <p><strong>Bonne réponse :</strong> ${q.options[q.bonneReponse]}</p>
+          <p class="text-muted"><em>💡 Explication :</em> ${q.explication}</p>
+        </div>`;
     }
   });
 
-  const percentage = (score / 20) * 100;
-  document.getElementById(
-    "score"
-  ).textContent = `Score : ${score}/20 (${percentage.toFixed(2)}%)`;
+  // Calcul du pourcentage
+  const percentage = (score / quizQuestions.length) * 100;
+
+  // Affichage du score global
+  let appreciation = "";
+  if (percentage === 100) {
+    appreciation = "🎉 Excellent ! Score parfait Allez au niveau suivant 👏";
+  } else if (percentage >= 80) {
+    appreciation = "🔥 Très bien ! Vous maîtrisez presque tout.";
+  } else if (percentage >= 50) {
+    appreciation = "😊 Bon début, continuez à progresser.";
+  } else {
+    appreciation = "⚠️ Révisez encore un peu, vous pouvez faire mieux !";
+  }
+
+  document.getElementById("score").innerHTML = `
+    <div class="text-center">
+      <h4 class="fw-bold">Score : ${score}/${
+    quizQuestions.length
+  } (${percentage.toFixed(2)}%)</h4>
+      <div class="progress my-2" style="height: 20px;">
+        <div class="progress-bar ${
+          percentage >= 50 ? "bg-success" : "bg-danger"
+        }" role="progressbar" style="width: ${percentage}%" aria-valuenow="${percentage}" aria-valuemin="0" aria-valuemax="100">
+          ${percentage.toFixed(0)}%
+        </div>
+      </div>
+      <p class="mt-2">${appreciation}</p>
+    </div>
+  `;
+
+  // Affichage des corrections
   document.getElementById("corrections").innerHTML = corrections;
+
+  // Redirection vers la page de résultats
   showPage("results");
 
   // Mise à jour de la progression
@@ -186,7 +231,7 @@ function submitQuiz() {
   };
   updateUser(currentUser);
 
-  // Historique
+  // Sauvegarde dans l’historique
   const history =
     JSON.parse(localStorage.getItem("history_" + currentUser.id)) || [];
   history.push({
@@ -197,25 +242,29 @@ function submitQuiz() {
   });
   localStorage.setItem("history_" + currentUser.id, JSON.stringify(history));
 
-  // Confetti si score parfait
+  // 🎉 Confetti si score parfait
   if (score === quizQuestions.length) {
     launchConfetti();
-    showAlert("🎉 Parfait ! Bravo !", "success");
+    showAlert("🎉 Score parfait ! Bravo 👌", "success");
   }
 }
 
 function revise() {
-  // Afficher les questions échouées
+  // Filtrer uniquement les questions échouées du quiz actuel
   const wrongQuestions = quizQuestions.filter(
     (q, index) => userAnswers[index] !== q.bonneReponse
   );
+
   if (wrongQuestions.length === 0) {
     showAlert("Aucune question à réviser, vous avez tout réussi !", "info");
     return;
   }
+
+  // Remettre à zéro pour la révision
   quizQuestions = wrongQuestions;
   userAnswers = new Array(wrongQuestions.length).fill(null);
   currentQuestionIndex = 0;
+
   showPage("quiz");
   displayQuestion();
   if (useTimer) {
